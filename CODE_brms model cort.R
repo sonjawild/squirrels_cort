@@ -2,7 +2,6 @@
 ##### Linking humans, dogs, and patterns of dispersal to stress physiology of California ground squirrels in a semi-urban park ######
 
 
-
 # load libraries
 library(brms)
 library(car)
@@ -208,7 +207,7 @@ plot_2013_2024 <- plot(conditional_effects(m_full_area_stage))
 fig <- ggarrange(
   plot_2013_2024$`site:stage`+
     theme_bw()+
-    scale_color_manual(values = c("#b9d2b1", "#c5b8dc"), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
+    scale_color_manual(values = c("#4bc490", "#9b5d7d"), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
     scale_x_discrete(labels = c("0" = "Less disturbed", "1" = "More disturbed")) +
     ylab("Ln fecal glucocorticoid metabolites (ng/g feces)")+
     guides(fill = "none")+
@@ -315,13 +314,28 @@ ggsave("figures/model 2013-2024_SI.png", fig_si, width = 12, height = 8, dpi = 3
 # to calculate repeatability, we more year to be a fixed effect, then extract from the posterior and calculate the intra-class correlation coefficient (icc) for uid and area
 # we do this separately for the two sites
 
+# some samples are duplicated per day per sample, we take the mean since otherwise we cannot estimate auto-correlation among samples within individuals
+CORT_full_site0 <- CORT_full %>%
+  filter(site == 0) %>%
+  group_by(uid, day.s) %>%
+  summarize(
+    lnCort = mean(lnCort),
+    stage = first(stage),
+    sex = first(sex),
+    mass_div_100 = first(mass_div_100),
+    year = first(year),
+    area = first(area)
+  ) %>%
+  ungroup()
+
 
  # Site 0 = less disturbed
 m_full_area_stage_0 <- brm(
   formula = lnCort ~ scale(day.s) + stage + sex*scale(mass_div_100) + stage*sex + year +
-    (1 | uid) + (1 | area),
+    (1 | uid) + (1 | area)+
+    ar(time = day.s, gr = uid), # this controls for auto-correlation for unequal time between sample collection
   family = gaussian(),
-  data = CORT_full[CORT_full$site==0,],
+  data = CORT_full_site0,
   cores = 4, chains = 4, iter = 4000
 )
 
@@ -356,20 +370,36 @@ site_0 <- list(
 
 # $R_uid
 # mean     median   l95.2.5%  u95.97.5% 
-#   0.15976290 0.15946786 0.06004697 0.26128882 
+#   0.17534301 0.17916269 0.03402815 0.29264967 
 # 
 # $R_area
 # mean       median     l95.2.5%    u95.97.5% 
-#   1.112349e-02 7.384461e-03 2.520717e-05 4.320248e-02
+#   0.0104255126 0.0066781736 0.0000303506 0.0427367600 
 
 
 # Site 1 = more disturbed
 
+CORT_full_site1 <- CORT_full %>%
+  filter(site == 1) %>%
+  group_by(uid, day.s) %>%
+  summarize(
+    lnCort = mean(lnCort),
+    stage = first(stage),
+    sex = first(sex),
+    mass_div_100 = first(mass_div_100),
+    year = first(year),
+    area = first(area)
+  ) %>%
+  ungroup()
+
+
+
 m_full_area_stage_1 <- brm(
   formula = lnCort ~ scale(day.s) + stage + sex*scale(mass_div_100) + stage*sex + year +
-    (1 | uid) + (1 | area),
+    (1 | uid) + (1 | area)+
+    ar(time = day.s, gr = uid), # this controls for auto-correlation for unequal time between sample collection
   family = gaussian(),
-  data = CORT_full[CORT_full$site==1,],
+  data = CORT_full_site1,
   cores = 4, chains = 4, iter = 4000
 )
 
@@ -403,11 +433,11 @@ site_1 <- list(
 
 # $R_uid
 # mean     median   l95.2.5%  u95.97.5% 
-#   0.07652460 0.07584099 0.04690633 0.10926431 
+#   0.05995037 0.05931702 0.02743090 0.09598078 
 # 
 # $R_area
 # mean     median   l95.2.5%  u95.97.5% 
-#   0.03472923 0.03201840 0.01362346 0.07216376 
+#   0.03496694 0.03259797 0.01385301 0.07055099
 
 
 # plots
@@ -437,7 +467,7 @@ repeatability <- ggplot(icc_all, aes(x = effect, y = mean, col = site)) +
   ylab("Adjusted repeatability (ICC)") +
   xlab("Random effect") +
   theme_bw() +
-  scale_color_manual(values = c("Site 0" = "#404788FF", "Site 1" = "#287D8EFF"), labels =c("Site 0"= "Less disturbed", "Site 1"="More disturbed"), name="Site")+
+  scale_color_manual(values = c("Site 0" = "#404788FF", "Site 1" = "#57B6D8FF"), labels =c("Site 0"= "Less disturbed", "Site 1"="More disturbed"), name="Site")+
   scale_x_discrete(labels = c("Trapping area", "Squirrel identity")) 
 
 repeatability
@@ -445,7 +475,29 @@ repeatability
 ggsave("figures/repeatability.png", repeatability, width = 5, height = 4, dpi = 300)
 
 
+# how does unequal sampling among indidiauls affect repeatabilties? Mixed models partially account for this via partial pooling, but we can test whetehr indivdiuals with more samplse have systematically different cort levels:
 
+n_samples <- table(CORT_full$uid)
+
+mean_cort <- CORT_full %>%
+  group_by(uid) %>%
+  summarize(mean_cort = mean(lnCort),
+            n = n())
+
+cor.test(mean_cort$mean_cort, mean_cort$n)
+
+# Pearson's product-moment correlation
+# 
+# data:  mean_cort$mean_cort and mean_cort$n
+# t = 2.3409, df = 1243, p-value = 0.0194
+# alternative hypothesis: true correlation is not equal to 0
+# 95 percent confidence interval:
+#  0.01073251 0.12136060
+# sample estimates:
+#        cor 
+# 0.06625015 
+
+# a minimally positive effect, but likely driven by really large sample size. 
 
 
 # 2) 2018-2024 data within disturbed site including area-specific disturbance through humans and dogs ----------------------------------------------------------------------
@@ -513,7 +565,7 @@ m_crow18_24 <- brm(
     scale(mass_div_100) * scale(dog_rate_scaled, scale=FALSE) +
     scale(human_rate_scaled, scale=FALSE) * stage +
     scale(dog_rate_scaled, scale=FALSE) * stage +
-#    scale(dog_rate_scaled, scale=FALSE) * scale(human_rate_scaled, scale=FALSE) +
+    scale(dog_rate_scaled, scale=FALSE) * scale(human_rate_scaled, scale=FALSE) +
     (1 | uid) +
     (1 | area) +
     (1 | year),
@@ -557,15 +609,15 @@ print(doc, target = "output tables/model_summary_2018-2024_Crow.docx")
 # For human rate by stage
 emm_human <- emtrends(m_crow18_24, ~ stage, var = "human_rate_scaled")
 # stage human_rate_scaled.trend lower.HPD upper.HPD
-# A                      -0.669    -0.943    -0.393
-# P                       0.843     0.463     1.182
+# A                      -0.662    -0.947    -0.393
+# P                       0.865     0.500     1.228
 # 
 # Results are averaged over the levels of: sex 
 # Point estimate displayed: median 
-# HPD interval probability: 0.95
+# HPD interval probability: 0.95 
 contrast(emm_human, "pairwise")
 # contrast estimate lower.HPD upper.HPD
-# A - P       -1.51     -2.02     -1.05
+# A - P       -1.53     -1.99     -1.03
 # 
 # Results are averaged over the levels of: sex 
 # Point estimate displayed: median 
@@ -574,20 +626,21 @@ contrast(emm_human, "pairwise")
 emm_dog <- emtrends(m_crow18_24, ~ stage, var = "dog_rate_scaled")
 
 # stage dog_rate_scaled.trend lower.HPD upper.HPD
-# A                     0.525     0.244    0.7871
-# P                    -0.271    -0.590    0.0555
+# A                     0.557     0.284    0.8158
+# P                    -0.268    -0.614    0.0532
 # 
 # Results are averaged over the levels of: sex 
 # Point estimate displayed: median 
 # HPD interval probability: 0.95 
 
 contrast(emm_dog, "pairwise")
-# contrast estimate lower.HPD upper.HPD
-# A - P       0.796     0.364      1.24
+# stage dog_rate_scaled.trend lower.HPD upper.HPD
+# A                     0.557     0.284    0.8158
+# P                    -0.268    -0.614    0.0532
 # 
 # Results are averaged over the levels of: sex 
 # Point estimate displayed: median 
-# HPD interval probability: 0.95 
+# HPD interval probability: 0.95  
 
 
 # 2.3) Model checks -------------------------------------------------------
@@ -609,7 +662,8 @@ ce_disturbance <- conditional_effects(
     "mass_div_100:human_rate_scaled",
     "mass_div_100:dog_rate_scaled",
     "human_rate_scaled:stage",
-    "dog_rate_scaled:stage"
+    "dog_rate_scaled:stage",
+    "human_rate_scaled:dog_rate_scaled"
   ),
   int_conditions = list(
     human_rate_scaled = setNames(c(0.1, 0.5, 0.9), c("0.1","0.5","0.9")),
@@ -626,8 +680,8 @@ fig <- ggarrange(plot_2018_2024_disturbance$human_rate_scaled+
             
             plot_2018_2024_disturbance$`human_rate_scaled:stage`+
               theme_bw()+
-              scale_color_manual(values = c("#b9d2b1", "#c5b8dc" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
-              scale_fill_manual(values = c("#b9d2b1", "#c5b8dc" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
+              scale_color_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
+              scale_fill_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
               ylab("")+
               xlab("Human presence\n [standardized]")+
               theme(
@@ -648,7 +702,17 @@ fig <- ggarrange(plot_2018_2024_disturbance$human_rate_scaled+
                 legend.background = element_rect(fill = alpha("white", 0.7))
               ),
             
+          
             
+            plot_2018_2024_disturbance$`human_rate_scaled:dog_rate_scaled`+
+              theme_bw()+
+              ylab("")+
+              scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
+              scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
+              theme(
+                legend.position = c(0.8, 0.8),   # move legend inside
+                legend.background = element_rect(fill = alpha("white", 0.7))
+              ),
           plot_2018_2024_disturbance$dog_rate_scaled+
             theme_bw()+
             ylab("Ln fecal glucocorticoid metabolites\n (ng/g feces)")+
@@ -657,15 +721,14 @@ fig <- ggarrange(plot_2018_2024_disturbance$human_rate_scaled+
           
           plot_2018_2024_disturbance$`dog_rate_scaled:stage`+
             theme_bw()+
-            scale_color_manual(values = c("#b9d2b1", "#c5b8dc" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
-            scale_fill_manual(values = c("#b9d2b1", "#c5b8dc" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
+            scale_color_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
+            scale_fill_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
             ylab("")+
             xlab("Dog presence\n [standardized]")+
             theme(
               legend.position = c(0.2, 0.86),   # move legend inside
               legend.background = element_rect(fill = alpha("white", 0.7))
             ), 
-          
           plot_2018_2024_disturbance$`mass_div_100:dog_rate_scaled`+
             theme_bw()+
             scale_x_continuous(breaks = c(3, 6, 9), 
@@ -677,11 +740,12 @@ fig <- ggarrange(plot_2018_2024_disturbance$human_rate_scaled+
             theme(
               legend.position = c(0.8, 0.8),   # move legend inside
               legend.background = element_rect(fill = alpha("white", 0.7))
-            ), 
+            ),
+          ggplot() + theme_void(),   # ← empty panel
           
 
-labels = c("a", "c", "e", "b", "d", "f"),
-ncol = 3, nrow = 2,
+labels = c("a", "c", "e", "g", "b", "d", "f", ""),
+ncol = 4, nrow = 2,
 widths = c(1, 1),   
 heights = c(1, 1),
 common.legend = FALSE
@@ -691,10 +755,7 @@ common.legend = FALSE
 fig
 
 # save to file
-ggsave("figures/model 2018-2024_crow.png", fig, width = 12, height = 8, dpi = 300)
-
-
-
+ggsave("figures/model 2018-2024_crow.png", fig, width = 12, height = 6, dpi = 300)
 
 
 # 3) Dispersal ------------------------------------------------------------
@@ -855,7 +916,7 @@ fig <- ggarrange(#plot_dispersal$natal_site+
 
                  plot_dispersal$`dispersal_status:natal_site`+
                    theme_bw()+
-                   scale_color_manual(values = c("#404788FF", "#287D8EFF"), labels=c("low disturbance"= "Less disturbed", "moderate disturbance"="More disturbed"), name="Site")+
+                   scale_color_manual(values = c("#404788FF", "#57B6D8FF"), labels=c("low disturbance"= "Less disturbed", "moderate disturbance"="More disturbed"), name="Site")+
                    guides(fill="none")+
                    ylab("")+
                    scale_x_discrete(labels=c("before", "after"))+
