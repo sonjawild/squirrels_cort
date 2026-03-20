@@ -202,14 +202,12 @@ pp_check(m_full_area_stage)
 
 plot_2013_2024 <- plot(conditional_effects(m_full_area_stage))
 
-
-
 fig <- ggarrange(
   plot_2013_2024$`site:stage`+
     theme_bw()+
     scale_color_manual(values = c("#4bc490", "#9b5d7d"), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
     scale_x_discrete(labels = c("0" = "Less disturbed", "1" = "More disturbed")) +
-    ylab("Ln fecal glucocorticoid metabolites (ng/g feces)")+
+    ylab("Ln fecal glucocorticoid\n metabolites (ng/g feces)")+
     guides(fill = "none")+
     xlab("Site"),
   
@@ -673,89 +671,93 @@ ce_disturbance <- conditional_effects(
 
 plot_2018_2024_disturbance <- plot(ce_disturbance)
 
-fig <- ggarrange(plot_2018_2024_disturbance$human_rate_scaled+
-            theme_bw()+
-            ylab("Ln fecal glucocorticoid metabolites\n (ng/g feces)")+
-            xlab("Human presence\n [standardized]"), 
-            
-            plot_2018_2024_disturbance$`human_rate_scaled:stage`+
-              theme_bw()+
-              scale_color_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
-              scale_fill_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
-              ylab("")+
-              xlab("Human presence\n [standardized]")+
-              theme(
-                legend.position = c(0.75, 0.17),   # move legend inside
-                legend.background = element_rect(fill = alpha("white", 0.7))
-              ),
-            
-            plot_2018_2024_disturbance$`mass_div_100:human_rate_scaled`+
-              theme_bw()+
-              scale_x_continuous(breaks = c(3, 6, 9), 
-                                 labels = c("300", "600", "900"))+
-              xlab("Mass [g]")+
-              ylab("")+
-              scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Human presence\n [standardized]")+
-              scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Human presence\n [standardized]")+
-              theme(
-                legend.position = c(0.8, 0.8),   # move legend inside
-                legend.background = element_rect(fill = alpha("white", 0.7))
-              ),
-            
-          
-            
-            plot_2018_2024_disturbance$`human_rate_scaled:dog_rate_scaled`+
-              theme_bw()+
-              ylab("")+
-              scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
-              scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
-              theme(
-                legend.position = c(0.8, 0.8),   # move legend inside
-                legend.background = element_rect(fill = alpha("white", 0.7))
-              ),
-          plot_2018_2024_disturbance$dog_rate_scaled+
-            theme_bw()+
-            ylab("Ln fecal glucocorticoid metabolites\n (ng/g feces)")+
-            xlab("Dog presence\n [standardized]"),
-          
-          
-          plot_2018_2024_disturbance$`dog_rate_scaled:stage`+
-            theme_bw()+
-            scale_color_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
-            scale_fill_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
-            ylab("")+
-            xlab("Dog presence\n [standardized]")+
-            theme(
-              legend.position = c(0.2, 0.86),   # move legend inside
-              legend.background = element_rect(fill = alpha("white", 0.7))
-            ), 
-          plot_2018_2024_disturbance$`mass_div_100:dog_rate_scaled`+
-            theme_bw()+
-            scale_x_continuous(breaks = c(3, 6, 9), 
-                               labels = c("300", "600", "900"))+
-            xlab("Mass [g]")+
-            ylab("")+
-            scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
-            scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
-            theme(
-              legend.position = c(0.8, 0.8),   # move legend inside
-              legend.background = element_rect(fill = alpha("white", 0.7))
-            ),
-          ggplot() + theme_void(),   # ← empty panel
-          
 
-labels = c("a", "c", "e", "g", "b", "d", "f", ""),
-ncol = 4, nrow = 2,
-widths = c(1, 1),   
-heights = c(1, 1),
-common.legend = FALSE
 
+ab <- ggarrange(
+  plot_2018_2024_disturbance$human_rate_scaled+
+    theme_bw()+
+    ylab("Ln fecal glucocorticoid \nmetabolites (ng/g feces)")+
+    xlab("Human presence\n [standardized]")+
+    ylim(c(2.7,5.5)), 
+  plot_2018_2024_disturbance$dog_rate_scaled+
+    theme_bw()+
+    ylab("")+
+    xlab("Dog presence\n [standardized]")+
+    ylim(c(2.7,5.5)),
+  ncol = 2, nrow = 1,
+  labels = c("a", "b")
+)
+
+fig <- ggarrange(
+  ab, 
+  plot_2018_2024_disturbance$`human_rate_scaled:stage`+
+    theme_bw()+
+    scale_color_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
+    scale_fill_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
+    ylab("")+
+    xlab("Human presence\n [standardized]")+
+    theme(
+      legend.position = c(0.25, 0.79),   # move legend inside
+      legend.background = element_rect(fill = alpha("white", 0.7))
+    )+
+    ylim(c(2.7,5.5)), 
+  plot_2018_2024_disturbance$`dog_rate_scaled:stage`+
+    theme_bw()+
+    scale_color_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
+    scale_fill_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
+    ylab("")+
+    xlab("Dog presence\n [standardized]")+
+    theme(
+      legend.position = c(0.25, 0.79),   # move legend inside
+      legend.background = element_rect(fill = alpha("white", 0.7))
+    )+
+    ylim(c(2.7,5.5)),
+  plot_2018_2024_disturbance$`mass_div_100:human_rate_scaled`+
+    theme_bw()+
+    scale_x_continuous(breaks = c(3, 6, 9), 
+                       labels = c("300", "600", "900"))+
+    xlab("Mass [g]")+
+    ylab("Ln fecal glucocorticoid\n metabolites (ng/g feces)")+
+    scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Human presence\n [standardized]")+
+    scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Human presence\n [standardized]")+
+    theme(
+      legend.position = c(0.8, 0.75),   # move legend inside
+      legend.background = element_rect(fill = alpha("white", 0.7))
+    )+
+    ylim(c(2.7,5.5)), 
+  plot_2018_2024_disturbance$`mass_div_100:dog_rate_scaled`+
+    theme_bw()+
+    scale_x_continuous(breaks = c(3, 6, 9), 
+                       labels = c("300", "600", "900"))+
+    xlab("Mass [g]")+
+    ylab("")+
+    scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
+    scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
+    theme(
+      legend.position = c(0.8, 0.75),   # move legend inside
+      legend.background = element_rect(fill = alpha("white", 0.7))
+    )+
+    ylim(c(2.7,5.5)),
+  plot_2018_2024_disturbance$`human_rate_scaled:dog_rate_scaled`+
+    theme_bw()+
+    ylab("")+
+    xlab("Human presence\n [standardized]")+
+    scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
+    scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
+    theme(
+      legend.position = c(0.8, 0.75),   # move legend inside
+      legend.background = element_rect(fill = alpha("white", 0.7))
+    )+
+    ylim(c(2.7,5.5)),
+  ncol = 3, nrow = 2,
+  widths = c(1.1, 1, 1),
+  labels=c("","c", "d", "e", "f", "g")
 )
 
 fig
 
 # save to file
-ggsave("figures/model 2018-2024_crow.png", fig, width = 12, height = 6, dpi = 300)
+ggsave("figures/model 2018-2024_crow.png", fig, width = 10.8, height = 6.5, dpi = 300)
 
 
 # 3) Dispersal ------------------------------------------------------------
@@ -763,10 +765,11 @@ ggsave("figures/model 2018-2024_crow.png", fig, width = 12, height = 6, dpi = 30
 
 CORT_dispersal_move <- read.csv("Data/Data_for_dispersal_model.csv", h=T)
 
+
 length(unique(CORT_dispersal_move$uid[CORT_dispersal_move$natal_site=="low disturbance"]))
-# 6
+# 18
 length(unique(CORT_dispersal_move$uid[CORT_dispersal_move$natal_site=="moderate disturbance"]))
-# 12
+# 20
 
 
 # 3.1) VIFs ---------------------------------------------------------------
@@ -779,16 +782,14 @@ m_lm <- lm(
   data = CORT_dispersal_move
 )
 
+
 # compute VIFs
 vif_vals <- vif(m_lm)
 
 vif_vals
 
-# scale(day.s)                 sex scale(mass_div_100)               stage    dispersal_status 
-# 1.007174            1.112046            1.980261            2.645728            1.411480 
-# natal_site 
-# 1.429900 
-
+# scale(day.s)                 sex scale(mass_div_100)               stage    dispersal_status          natal_site 
+# 1.133446            1.328671            2.152635            1.898849            1.253907            1.272861
 
 vif_df <- as.data.frame(round(vif_vals, 2))
 
@@ -819,6 +820,21 @@ m_disperse_move <- brm(
   chains = 4, cores = 4, iter = 4000,
   control = list(adapt_delta = 0.95) # helps with convergence
 )
+
+# check model with minimum age instead of dispersal (in response to reviewer question)
+m_disperse_move2 <- brm(
+  formula = lnCort ~ scale(day.s) + sex + scale(mass_div_100) + stage + scale(min_age_master)* natal_site +
+    (1 | uid) + (1 | area) + (1 | year),
+  family = student(), # switching from gaussian to student, since the model struggled to deal with tails. 
+  data = CORT_dispersal_move,
+  chains = 4, cores = 4, iter = 4000,
+  control = list(adapt_delta = 0.95) # helps with convergence
+)
+
+# and compare with loo
+loo(m_disperse_move, m_disperse_move2)
+
+# Model with dispersal performs better than that with age, although relatively uncertain
 
 
 #save(m_disperse_move, file="model output/m_dispersal.RDA")
@@ -861,33 +877,31 @@ emm <- emmeans(m_disperse_move, ~ dispersal_status * natal_site)
 emm
 
 # dispersal_status natal_site           emmean lower.HPD upper.HPD
-# before           low disturbance        3.39      2.93      3.84
-# post             low disturbance        3.82      3.41      4.22
-# before           moderate disturbance   3.68      3.26      4.04
-# post             moderate disturbance   3.65      3.27      4.07
+# before           low disturbance        3.65      3.26      4.06
+# post             low disturbance        3.91      3.56      4.29
+# before           moderate disturbance   3.80      3.43      4.16
+# post             moderate disturbance   3.50      3.16      3.90
 # 
 # Results are averaged over the levels of: sex, stage 
 # Point estimate displayed: median 
-# HPD interval probability: 0.95
+# HPD interval probability: 0.95 
 
 # Simple pairwise comparisons within each natal site
 contrast(emm, method = "pairwise", by = "natal_site")
 
-# NOTE: this is before-post, so a negative value means an increase from before to post.
+# NOTE: this is before minus post, so a negative value means an increase from before to post.
 
 # natal_site = low disturbance:
 #   contrast      estimate lower.HPD upper.HPD
-# before - post  -0.4341    -0.701    -0.133
+# before - post   -0.260   -0.5386    0.0126
 # 
 # natal_site = moderate disturbance:
 #   contrast      estimate lower.HPD upper.HPD
-# before - post   0.0388    -0.369     0.441
+# before - post    0.298    0.0385    0.5673
 # 
 # Results are averaged over the levels of: sex, stage 
 # Point estimate displayed: median 
-# HPD interval probability: 0.95
-
-# we have an increase in cort for low disturbance site from before to post, but not for the moderate disturbance site
+# HPD interval probability: 0.95  
 
 # 3.3) Model checks -------------------------------------------------------
 
@@ -911,7 +925,7 @@ fig <- ggarrange(#plot_dispersal$natal_site+
                  plot_dispersal$dispersal_status+
                    theme_bw()+
                    xlab("Dispersal status")+
-                   ylab("Ln fecal glucocorticoid metabolites (ng/g feces)")+
+                   ylab("Ln fecal glucocorticoid\n metabolites (ng/g feces)")+
                    scale_x_discrete(labels=c("before", "after")),
 
                  plot_dispersal$`dispersal_status:natal_site`+
