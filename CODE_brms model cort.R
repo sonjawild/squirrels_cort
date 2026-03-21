@@ -767,9 +767,9 @@ CORT_dispersal_move <- read.csv("Data/Data_for_dispersal_model.csv", h=T)
 
 
 length(unique(CORT_dispersal_move$uid[CORT_dispersal_move$natal_site=="low disturbance"]))
-# 18
+# 17
 length(unique(CORT_dispersal_move$uid[CORT_dispersal_move$natal_site=="moderate disturbance"]))
-# 20
+# 19
 
 
 # 3.1) VIFs ---------------------------------------------------------------
@@ -789,7 +789,7 @@ vif_vals <- vif(m_lm)
 vif_vals
 
 # scale(day.s)                 sex scale(mass_div_100)               stage    dispersal_status          natal_site 
-# 1.133446            1.328671            2.152635            1.898849            1.253907            1.272861
+# 1.133580            1.400278            2.099603            1.821720            1.245193            1.309120 
 
 vif_df <- as.data.frame(round(vif_vals, 2))
 
@@ -834,6 +834,10 @@ m_disperse_move2 <- brm(
 # and compare with loo
 loo(m_disperse_move, m_disperse_move2)
 
+# Model comparisons:
+#   elpd_diff se_diff
+# m_disperse_move   0.0       0.0   
+# m_disperse_move2 -4.2       3.1
 # Model with dispersal performs better than that with age, although relatively uncertain
 
 
@@ -877,10 +881,10 @@ emm <- emmeans(m_disperse_move, ~ dispersal_status * natal_site)
 emm
 
 # dispersal_status natal_site           emmean lower.HPD upper.HPD
-# before           low disturbance        3.65      3.26      4.06
-# post             low disturbance        3.91      3.56      4.29
-# before           moderate disturbance   3.80      3.43      4.16
-# post             moderate disturbance   3.50      3.16      3.90
+# before           low disturbance        3.66      3.27      4.08
+# post             low disturbance        3.89      3.52      4.29
+# before           moderate disturbance   3.81      3.45      4.20
+# post             moderate disturbance   3.49      3.10      3.86
 # 
 # Results are averaged over the levels of: sex, stage 
 # Point estimate displayed: median 
@@ -893,16 +897,15 @@ contrast(emm, method = "pairwise", by = "natal_site")
 
 # natal_site = low disturbance:
 #   contrast      estimate lower.HPD upper.HPD
-# before - post   -0.260   -0.5386    0.0126
+# before - post   -0.231   -0.5194    0.0667
 # 
 # natal_site = moderate disturbance:
 #   contrast      estimate lower.HPD upper.HPD
-# before - post    0.298    0.0385    0.5673
+# before - post    0.322    0.0524    0.5897
 # 
 # Results are averaged over the levels of: sex, stage 
 # Point estimate displayed: median 
-# HPD interval probability: 0.95  
-
+# HPD interval probability: 0.95
 # 3.3) Model checks -------------------------------------------------------
 
 plot(m_disperse_move)
