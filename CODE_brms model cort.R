@@ -113,6 +113,7 @@ print(doc, target = "output tables/model_summary_2013-2024.docx")
 emm_site_stage <- emmeans(m_full_area_stage, ~ site * stage)
 emm_stage_sex <- emmeans(m_full_area_stage, ~ stage * sex)
 emm_site_sex <- emmeans(m_full_area_stage, ~ site * sex)
+emm_mass_sex <- emtrends(m_full_area_stage, ~ sex, var = "scale(mass_div_100)")
 
 emm_site_stage
 # site stage emmean lower.HPD upper.HPD
@@ -187,6 +188,15 @@ contrast(emm_site_sex, method = "pairwise", by = "site")
 # F - M      0.0626    0.0165     0.111
 # 
 # Results are averaged over the levels of: stage 
+# Point estimate displayed: median 
+# HPD interval probability: 0.95 
+
+emm_mass_sex
+# sex mass_div_100.trend lower.HPD upper.HPD
+# F              -0.0347   -0.0558   -0.0146
+# M               0.0494    0.0283    0.0700
+# 
+# Results are averaged over the levels of: site, stage 
 # Point estimate displayed: median 
 # HPD interval probability: 0.95 
 
