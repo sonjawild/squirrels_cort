@@ -891,21 +891,20 @@ emm
 # HPD interval probability: 0.95 
 
 # Simple pairwise comparisons within each natal site
-contrast(emm, method = "pairwise", by = "natal_site")
-
-# NOTE: this is before minus post, so a negative value means an increase from before to post.
+contrast(emm, method = "revpairwise", by = "natal_site")
 
 # natal_site = low disturbance:
 #   contrast      estimate lower.HPD upper.HPD
-# before - post   -0.231   -0.5194    0.0667
+# post - before    0.231   -0.0667    0.5194
 # 
 # natal_site = moderate disturbance:
 #   contrast      estimate lower.HPD upper.HPD
-# before - post    0.322    0.0524    0.5897
+# post - before   -0.322   -0.5897   -0.0524
 # 
 # Results are averaged over the levels of: sex, stage 
 # Point estimate displayed: median 
 # HPD interval probability: 0.95
+
 # 3.3) Model checks -------------------------------------------------------
 
 plot(m_disperse_move)
