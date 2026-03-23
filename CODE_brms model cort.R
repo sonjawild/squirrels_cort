@@ -891,6 +891,7 @@ emm
 # HPD interval probability: 0.95 
 
 # Simple pairwise comparisons within each natal site
+
 contrast(emm, method = "revpairwise", by = "natal_site")
 
 # natal_site = low disturbance:
@@ -903,7 +904,8 @@ contrast(emm, method = "revpairwise", by = "natal_site")
 # 
 # Results are averaged over the levels of: sex, stage 
 # Point estimate displayed: median 
-# HPD interval probability: 0.95
+# HPD interval probability: 0.95 
+
 
 # 3.3) Model checks -------------------------------------------------------
 
