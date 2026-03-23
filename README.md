@@ -1,6 +1,8 @@
 # Linking humans, dogs, and patterns of dispersal to stress physiology of California ground squirrels in a semi-urban park
 
-## Code and for analyzing fecal glucocorticoids of California ground squirrels in an urban park
+## Code and data for analyzing fecal glucocorticoids of California ground squirrels in an urban park
+
+## NOTE: Data is available upon request by the corresponding author!! 
 
 ### 1) Data:
 - Data_for_2013_2024_model.csv (cort data at both sites between 2013-2024 - model 1 in code)
