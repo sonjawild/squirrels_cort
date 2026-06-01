@@ -687,12 +687,12 @@ ab <- ggarrange(
   plot_2018_2024_disturbance$human_rate_scaled+
     theme_bw()+
     ylab("Ln fecal glucocorticoid \nmetabolites (ng/g feces)")+
-    xlab("Human presence\n [standardized]")+
+    xlab("Human activity\n [standardized]")+
     ylim(c(2.7,5.5)), 
   plot_2018_2024_disturbance$dog_rate_scaled+
     theme_bw()+
     ylab("")+
-    xlab("Dog presence\n [standardized]")+
+    xlab("Dog activity\n [standardized]")+
     ylim(c(2.7,5.5)),
   ncol = 2, nrow = 1,
   labels = c("a", "b")
@@ -705,7 +705,7 @@ fig <- ggarrange(
     scale_color_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
     scale_fill_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
     ylab("")+
-    xlab("Human presence\n [standardized]")+
+    xlab("Human activity\n [standardized]")+
     theme(
       legend.position = c(0.25, 0.79),   # move legend inside
       legend.background = element_rect(fill = alpha("white", 0.7))
@@ -716,7 +716,7 @@ fig <- ggarrange(
     scale_color_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
     scale_fill_manual(values = c("#4bc490", "#9b5d7d" ), labels = c("A" = "Adult", "P" = "Juvenile"), name="Age category")+
     ylab("")+
-    xlab("Dog presence\n [standardized]")+
+    xlab("Dog activity\n [standardized]")+
     theme(
       legend.position = c(0.25, 0.79),   # move legend inside
       legend.background = element_rect(fill = alpha("white", 0.7))
@@ -726,10 +726,10 @@ fig <- ggarrange(
     theme_bw()+
     scale_x_continuous(breaks = c(3, 6, 9), 
                        labels = c("300", "600", "900"))+
-    xlab("Mass [g]")+
+    xlab("Mass [grams]")+
     ylab("Ln fecal glucocorticoid\n metabolites (ng/g feces)")+
-    scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Human presence\n [standardized]")+
-    scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Human presence\n [standardized]")+
+    scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Human activity\n [standardized]")+
+    scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Human activity\n [standardized]")+
     theme(
       legend.position = c(0.8, 0.75),   # move legend inside
       legend.background = element_rect(fill = alpha("white", 0.7))
@@ -739,10 +739,10 @@ fig <- ggarrange(
     theme_bw()+
     scale_x_continuous(breaks = c(3, 6, 9), 
                        labels = c("300", "600", "900"))+
-    xlab("Mass [g]")+
+    xlab("Mass [grams]")+
     ylab("")+
-    scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
-    scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
+    scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog activity\n [standardized]")+
+    scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog activity\n [standardized]")+
     theme(
       legend.position = c(0.8, 0.75),   # move legend inside
       legend.background = element_rect(fill = alpha("white", 0.7))
@@ -751,9 +751,9 @@ fig <- ggarrange(
   plot_2018_2024_disturbance$`human_rate_scaled:dog_rate_scaled`+
     theme_bw()+
     ylab("")+
-    xlab("Human presence\n [standardized]")+
-    scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
-    scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog presence\n [standardized]")+
+    xlab("Human activity\n [standardized]")+
+    scale_color_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog activity\n [standardized]")+
+    scale_fill_manual(values = c("#a64d6c", "#a09446", "#7f64b9"), name="Dog activity\n [standardized]")+
     theme(
       legend.position = c(0.8, 0.75),   # move legend inside
       legend.background = element_rect(fill = alpha("white", 0.7))
